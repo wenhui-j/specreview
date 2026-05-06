@@ -16,6 +16,19 @@ metadata:
 
 ---
 
+## 项目结构说明
+
+所有文件路径均相对于**项目根目录**，而非技能文件所在目录：
+
+```
+.claude/skills/specreview/SKILL.md   ← 当前技能文件（勿手动编辑）
+specreview/config.yaml                ← 角色配置（所有自定义在此添加）
+specreview/config/                    ← 角色检查文件（.md）
+openspec/changes/{spec-name}/         ← OpenSpec 变更目录
+```
+
+---
+
 ## /specreview init — 添加自定义角色
 
 ### 歧义处理
@@ -73,7 +86,7 @@ metadata:
 > 将生成配置文件：
 > `specreview/config/api-check.md`
 
-用户确认后执行：
+用户确认后执行（以下路径均为项目根目录下）：
 1. 在 `specreview/config.yaml` 的 `roles:` 下追加新角色条目，设 `enabled: true`
 2. 在 `specreview/config/` 下创建 `{role-id}.md`，格式参考 `specreview/config/` 下已有角色文件：
 
