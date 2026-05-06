@@ -92,16 +92,16 @@ export function validateConfigYaml(content, options = {}) {
 function extractRoleIds(content) {
   // Find the `roles:` section, then extract indented keys before another top-level key
   const rolesMatch = content.match(/(?:^|\n)roles:\n([\s\S]*?)(?=\n\S|\n*$)/);
-  if (!rolesMatch) return [];
+  if (!rolesMatch) { return []; }
 
   const section = rolesMatch[1];
   const ids = [];
   // Match lines that start with 2 spaces, name, colon (but not a property like "  title:")
-  const regex = /^  ([\w-]+):\s*$/gm;
+  const regex = /^ {2}([\w-]+):\s*$/gm;
   let match;
   while ((match = regex.exec(section)) !== null) {
     // Skip known property names that happen to match the pattern (edge case)
-    if (match[1] === 'enabled' || match[1] === 'title' || match[1] === 'description' || match[1] === 'priority') continue;
+    if (match[1] === 'enabled' || match[1] === 'title' || match[1] === 'description' || match[1] === 'priority') { continue; }
     ids.push(match[1]);
   }
   return ids;
@@ -113,7 +113,7 @@ function extractRoleIds(content) {
 function extractRoleSection(content, roleId) {
   const lines = content.split('\n');
   const startIdx = lines.findIndex(l => l.trim() === `${roleId}:`);
-  if (startIdx === -1) return '';
+  if (startIdx === -1) { return ''; }
 
   const sectionLines = [];
   // Collect indented properties (must start with 4+ spaces or 2 spaces + "-")

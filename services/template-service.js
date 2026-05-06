@@ -85,6 +85,6 @@ export class TemplateService {
 import { readFileSync, existsSync } from 'fs';
 
 function fsReadSync(p) {
-  if (!existsSync(p)) throw new Error('not found');
+  if (!existsSync(p)) { throw new Error('not found'); }
   return readFileSync(p, 'utf-8');
 }
