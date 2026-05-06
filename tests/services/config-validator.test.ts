@@ -38,7 +38,9 @@ describe('config-validator', () => {
 
   describe('error detection', () => {
     it('detects missing roles key', () => {
-      expect(() => validateConfigYaml('report:\n  format: markdown', { expectedRoles: false })).toThrow('roles');
+      expect(() => validateConfigYaml('report:\n  format: markdown', { expectedRoles: false })).toThrow(
+        'roles',
+      );
     });
 
     it('detects missing report key', () => {
@@ -58,7 +60,9 @@ roles:
     enabled: true
     priority: 10
 `;
-      expect(() => validateConfigYaml(bad, { expectedRoles: false })).toThrow(/missing required property.*description/i);
+      expect(() => validateConfigYaml(bad, { expectedRoles: false })).toThrow(
+        /missing required property.*description/i,
+      );
     });
 
     it('flags non-boolean enabled value', () => {
@@ -70,7 +74,9 @@ roles:
     enabled: "yes"
     priority: 10
 `;
-      expect(() => validateConfigYaml(bad, { expectedRoles: false })).toThrow(/enabled.*should be true or false/i);
+      expect(() => validateConfigYaml(bad, { expectedRoles: false })).toThrow(
+        /enabled.*should be true or false/i,
+      );
     });
 
     it('flags non-integer priority', () => {
@@ -82,7 +88,9 @@ roles:
     enabled: true
     priority: high
 `;
-      expect(() => validateConfigYaml(bad, { expectedRoles: false })).toThrow(/priority.*should be an integer/i);
+      expect(() => validateConfigYaml(bad, { expectedRoles: false })).toThrow(
+        /priority.*should be an integer/i,
+      );
     });
 
     it('detects missing expected roles', () => {

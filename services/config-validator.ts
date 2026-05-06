@@ -90,7 +90,12 @@ function extractRoleIds(content: string): string[] {
   const regex = /^ {2}([\w-]+):\s*$/gm;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(section)) !== null) {
-    if (match[1] === 'enabled' || match[1] === 'title' || match[1] === 'description' || match[1] === 'priority') {
+    if (
+      match[1] === 'enabled' ||
+      match[1] === 'title' ||
+      match[1] === 'description' ||
+      match[1] === 'priority'
+    ) {
       continue;
     }
     ids.push(match[1]);
@@ -107,7 +112,10 @@ function extractRoleSection(content: string, roleId: string): string {
 
   const sectionLines: string[] = [];
   for (let i = startIdx + 1; i < lines.length; i++) {
-    if (/^\S/.test(lines[i]) || (lines[i].length > 0 && !lines[i].startsWith('    ') && !lines[i].startsWith('  -'))) {
+    if (
+      /^\S/.test(lines[i]) ||
+      (lines[i].length > 0 && !lines[i].startsWith('    ') && !lines[i].startsWith('  -'))
+    ) {
       break;
     }
     sectionLines.push(lines[i]);

@@ -22,7 +22,10 @@ program
 program
   .command('init [directory]')
   .description('Initialize specreview in your project')
-  .option('--tools <tools>', 'Comma-separated tool IDs (claude,cursor,windsurf,...). Omit for interactive selection.')
+  .option(
+    '--tools <tools>',
+    'Comma-separated tool IDs (claude,cursor,windsurf,...). Omit for interactive selection.',
+  )
   .option('--force', 'Overwrite existing files without prompting')
   .action(async (directory = '.', options: { tools?: string; force?: boolean }) => {
     try {
@@ -30,9 +33,7 @@ program
       const projectPath = resolve(cwd, directory);
       validateProjectPath(projectPath, cwd);
 
-      const tools = options.tools
-        ? options.tools.split(',').map((t) => t.trim().toLowerCase())
-        : undefined;
+      const tools = options.tools ? options.tools.split(',').map((t) => t.trim().toLowerCase()) : undefined;
       await init({ projectPath, tools, force: options.force ?? false });
     } catch (err) {
       console.error(`\n  Error: ${(err as Error).message}`);

@@ -18,7 +18,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, __dirname.includes('/dist/') ? '../../' : '../');
 const TEMPLATES_DIR = resolve(rootDir, 'templates');
 
-export async function init({ projectPath, tools, force = false }: { projectPath: string; tools?: string[]; force?: boolean }) {
+export async function init({
+  projectPath,
+  tools,
+  force = false,
+}: {
+  projectPath: string;
+  tools?: string[];
+  force?: boolean;
+}) {
   console.log(chalk.bold('\n  specreview init\n'));
 
   const projectFs = new FileService(projectPath);
@@ -58,7 +66,9 @@ export async function init({ projectPath, tools, force = false }: { projectPath:
   const skillSpinner = ora({ text: 'Generating skills...', color: 'gray' }).start();
   const skillContent = templateSvc.getSkillContent();
   const { createdCount, skippedCount } = writeSkillFiles(projectFs, selectedTools, skillContent, force);
-  skillSpinner.succeed(`Skills: ${createdCount} created, ${skippedCount} skipped (${selectedTools.length} tools)`);
+  skillSpinner.succeed(
+    `Skills: ${createdCount} created, ${skippedCount} skipped (${selectedTools.length} tools)`,
+  );
 
   // Step 4: Write config + role files
   const configSpinner = ora({ text: 'Generating config...', color: 'gray' }).start();
@@ -74,7 +84,9 @@ export async function init({ projectPath, tools, force = false }: { projectPath:
 
     try {
       writeConfigFiles(projectFs, templateSvc);
-      configSpinner.succeed(`Config: specreview/${CONFIG_YAML} + specreview/config/ (${CONFIG_FILES.length + 1} files)`);
+      configSpinner.succeed(
+        `Config: specreview/${CONFIG_YAML} + specreview/config/ (${CONFIG_FILES.length + 1} files)`,
+      );
     } catch (err) {
       projectFs.restoreSnapshot(snapshot);
       configSpinner.fail(`Config generation failed — changes reverted: ${(err as Error).message}`);
@@ -108,7 +120,12 @@ async function interactiveSelect(toolSvc: ToolService, detected: string[]): Prom
   return toolSvc.filterByIds(selected);
 }
 
-function writeSkillFiles(projectFs: FileService, selectedTools: ToolDef[], skillContent: string, force: boolean) {
+function writeSkillFiles(
+  projectFs: FileService,
+  selectedTools: ToolDef[],
+  skillContent: string,
+  force: boolean,
+) {
   let createdCount = 0;
   let skippedCount = 0;
 

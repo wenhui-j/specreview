@@ -63,7 +63,9 @@ export async function update({ projectPath }: { projectPath: string }) {
     console.log(`  ${chalk.green('✔')} specreview npm package  ${chalk.dim('updated to latest')}`);
   }
   console.log(`  ${chalk.green('✔')} SKILL.md               ${chalk.dim('overwritten')}`);
-  console.log(`  ${chalk.green('✔')} Config / role checks   ${chalk.dim('synced (customizations preserved)')}`);
+  console.log(
+    `  ${chalk.green('✔')} Config / role checks   ${chalk.dim('synced (customizations preserved)')}`,
+  );
   console.log();
   console.log(`${chalk.dim('Restart your AI assistant for updated skills to take effect.')}`);
   console.log();
@@ -73,7 +75,9 @@ async function updateNpmPackage(): Promise<boolean> {
   const npmSpinner = ora({ text: 'Checking for specreview updates...', color: 'gray' }).start();
 
   try {
-    const { stdout: installedJson } = await execAsync('npm list -g specreview --depth=0 --json', { timeout: 10000 });
+    const { stdout: installedJson } = await execAsync('npm list -g specreview --depth=0 --json', {
+      timeout: 10000,
+    });
     const parsed = JSON.parse(installedJson) as { dependencies?: Record<string, { version: string }> };
     const installedVersion = parsed.dependencies?.specreview?.version;
 
@@ -97,7 +101,9 @@ async function updateNpmPackage(): Promise<boolean> {
       return false;
     }
 
-    const { stdout: verifyJson } = await execAsync('npm list -g specreview --depth=0 --json', { timeout: 10000 });
+    const { stdout: verifyJson } = await execAsync('npm list -g specreview --depth=0 --json', {
+      timeout: 10000,
+    });
     const verifyParsed = JSON.parse(verifyJson) as { dependencies?: Record<string, { version: string }> };
     const newVersion = verifyParsed.dependencies?.specreview?.version;
 
@@ -105,7 +111,9 @@ async function updateNpmPackage(): Promise<boolean> {
       npmSpinner.succeed(`Updated to v${latest} ✓`);
       return true;
     } else {
-      npmSpinner.warn(`Install ran but version is still v${newVersion}. Try "npm install -g specreview@${latest}" manually.`);
+      npmSpinner.warn(
+        `Install ran but version is still v${newVersion}. Try "npm install -g specreview@${latest}" manually.`,
+      );
       return false;
     }
   } catch (err: unknown) {
@@ -144,16 +152,22 @@ function syncConfigFiles(projectFs: FileService, templateSvc: TemplateService) {
 
   const yamlPath = join(specreviewDir, CONFIG_YAML);
   if (projectFs.exists(yamlPath)) {
-    console.log(`  ${chalk.green('✔')} ${CONFIG_YAML.padEnd(20)} ${chalk.dim('preserved (your customizations kept)')}`);
+    console.log(
+      `  ${chalk.green('✔')} ${CONFIG_YAML.padEnd(20)} ${chalk.dim('preserved (your customizations kept)')}`,
+    );
   } else {
     projectFs.write(yamlPath, freshYaml);
-    console.log(`  ${chalk.cyan('+')} ${CONFIG_YAML.padEnd(20)} ${chalk.dim('created (new in this version)')}`);
+    console.log(
+      `  ${chalk.cyan('+')} ${CONFIG_YAML.padEnd(20)} ${chalk.dim('created (new in this version)')}`,
+    );
   }
 
   for (const file of CONFIG_FILES) {
     const filePath = join(configDir, file);
     if (projectFs.exists(filePath)) {
-      console.log(`  ${chalk.green('✔')} ${file.padEnd(20)} ${chalk.dim('preserved (your customizations kept)')}`);
+      console.log(
+        `  ${chalk.green('✔')} ${file.padEnd(20)} ${chalk.dim('preserved (your customizations kept)')}`,
+      );
     } else {
       const content = templateSvc.getRoleCheckFile(file);
       projectFs.write(filePath, content);
