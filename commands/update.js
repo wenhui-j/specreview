@@ -32,7 +32,7 @@ const execAsync = promisify(exec);
  */
 export async function update({ projectPath }) {
   console.log(chalk.bold('\n  specreview update'));
-  console.log(`  ${chalk.dim(`Current version: v${CURRENT_VERSION}`)}\n`);
+  console.log(`  ${chalk.dim(`Source version: v${CURRENT_VERSION}`)}\n`);
 
   // ── Build services ──
   const projectFs = new FileService(projectPath);
@@ -40,7 +40,7 @@ export async function update({ projectPath }) {
   const toolSvc = new ToolService(TOOLS, projectFs);
 
   // ── Step 0: Update global npm package ──
-  await updateNpmPackage();
+  const npmUpdated = await updateNpmPackage();
 
   // ── Step 1: Detect configured tools ──
   const configured = detectConfiguredTools(projectFs, toolSvc);
@@ -72,7 +72,9 @@ export async function update({ projectPath }) {
   console.log();
   console.log(chalk.bold('  Update Complete'));
   console.log();
-  console.log(`  ${chalk.green('✔')} specreview npm package  ${chalk.dim(`updated to v${CURRENT_VERSION}`)}`);
+  if (npmUpdated) {
+    console.log(`  ${chalk.green('✔')} specreview npm package  ${chalk.dim('updated to latest')}`);
+  }
   console.log(`  ${chalk.green('✔')} SKILL.md               ${chalk.dim('overwritten')}`);
   console.log(`  ${chalk.green('✔')} Config / role checks   ${chalk.dim('synced (customizations preserved)')}`);
   console.log();
@@ -83,29 +85,46 @@ export async function update({ projectPath }) {
 // ── Internal steps ──────────────────────────────────────────────────────
 
 async function updateNpmPackage() {
-  // Check latest version on npm registry first
+  const npmSpinner = ora({ text: 'Checking for specreview updates...', color: 'gray' }).start();
+
   try {
+    // 1. Get currently installed global version
+    const { stdout: installedJson } = await execAsync('npm list -g specreview --depth=0 --json', { timeout: 10000 });
+    const installedVersion = JSON.parse(installedJson).dependencies?.specreview?.version;
+
+    // 2. Get latest version on npm registry
     const { stdout: latestVersion } = await execAsync('npm view specreview version', { timeout: 10000 });
     const latest = latestVersion.trim();
 
-    if (latest === CURRENT_VERSION) {
-      console.log(`  ${chalk.green('✔')} specreview npm package  ${chalk.dim(`already at latest version (v${CURRENT_VERSION})`)}`);
-      return;
+    if (installedVersion) {
+      npmSpinner.text = `Current: v${installedVersion}  →  Latest: v${latest}`;
     }
 
-    console.log(`  ${chalk.dim(`npm registry: v${latest}  →  local: v${CURRENT_VERSION}`)}`);
-  } catch {
-    // If registry check fails, proceed with update anyway
-  }
+    // 3. Already up to date
+    if (installedVersion === latest) {
+      npmSpinner.succeed(`Already at latest version (v${latest})`);
+      return false;
+    }
 
-  const npmSpinner = ora({ text: 'Updating specreview...', color: 'gray' }).start();
-  try {
+    // 4. Install latest
+    npmSpinner.text = `Updating from v${installedVersion} to v${latest}...`;
     const { stderr } = await execAsync('npm install -g specreview@latest', { timeout: 30000 });
 
     if (stderr && stderr.includes('npm ERR')) {
       npmSpinner.warn(`npm warning:\n${stderr}`);
+      return false;
+    }
+
+    // 5. Verify installation
+    const { stdout: verifyJson } = await execAsync('npm list -g specreview --depth=0 --json', { timeout: 10000 });
+    const newVersion = JSON.parse(verifyJson).dependencies?.specreview?.version;
+
+    if (newVersion === latest) {
+      npmSpinner.succeed(`Updated to v${latest} ${chalk.green('✓')}`);
+      return true;
     } else {
-      npmSpinner.succeed(`specreview updated to v${CURRENT_VERSION}`);
+      npmSpinner.warn(`Install ran but version is still v${newVersion}. Try "npm install -g specreview@${latest}" manually.`);
+      return false;
     }
   } catch (err) {
     if (err.code === 'ENOENT') {
@@ -119,6 +138,7 @@ async function updateNpmPackage() {
     } else {
       npmSpinner.warn(`npm update skipped: ${(err.stderr || err.message || 'unknown error').trim()}`);
     }
+    return false;
   }
 }
 
