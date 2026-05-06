@@ -6,6 +6,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { dirname, resolve, join } from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
 import ora from 'ora';
 import chalk from 'chalk';
 import { TOOLS, CONFIG_FILES, CONFIG_YAML } from '../constants.js';
@@ -16,6 +17,8 @@ import { validateConfigYaml } from '../services/config-validator.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = resolve(__dirname, '..', 'templates');
+const pkg = JSON.parse(readFileSync(resolve(__dirname, '../package.json'), 'utf-8'));
+const CURRENT_VERSION = pkg.version;
 
 const execAsync = promisify(exec);
 
@@ -28,7 +31,8 @@ const execAsync = promisify(exec);
  * @param {string} opts.projectPath – absolute project root.
  */
 export async function update({ projectPath }) {
-  console.log(chalk.bold('\n  specreview update\n'));
+  console.log(chalk.bold('\n  specreview update'));
+  console.log(`  ${chalk.dim(`Current version: v${CURRENT_VERSION}`)}\n`);
 
   // ── Build services ──
   const projectFs = new FileService(projectPath);
@@ -68,7 +72,7 @@ export async function update({ projectPath }) {
   console.log();
   console.log(chalk.bold('  Update Complete'));
   console.log();
-  console.log(`  ${chalk.green('✔')} specreview npm package  ${chalk.dim('updated to latest')}`);
+  console.log(`  ${chalk.green('✔')} specreview npm package  ${chalk.dim(`updated to v${CURRENT_VERSION}`)}`);
   console.log(`  ${chalk.green('✔')} SKILL.md               ${chalk.dim('overwritten')}`);
   console.log(`  ${chalk.green('✔')} Config / role checks   ${chalk.dim('synced (customizations preserved)')}`);
   console.log();
@@ -79,17 +83,31 @@ export async function update({ projectPath }) {
 // ── Internal steps ──────────────────────────────────────────────────────
 
 async function updateNpmPackage() {
-  const npmSpinner = ora({ text: 'Checking for specreview updates...', color: 'gray' }).start();
+  // Check latest version on npm registry first
+  try {
+    const { stdout: latestVersion } = await execAsync('npm view specreview version', { timeout: 10000 });
+    const latest = latestVersion.trim();
+
+    if (latest === CURRENT_VERSION) {
+      console.log(`  ${chalk.green('✔')} specreview npm package  ${chalk.dim(`already at latest version (v${CURRENT_VERSION})`)}`);
+      return;
+    }
+
+    console.log(`  ${chalk.dim(`npm registry: v${latest}  →  local: v${CURRENT_VERSION}`)}`);
+  } catch {
+    // If registry check fails, proceed with update anyway
+  }
+
+  const npmSpinner = ora({ text: 'Updating specreview...', color: 'gray' }).start();
   try {
     const { stderr } = await execAsync('npm install -g specreview@latest', { timeout: 30000 });
 
     if (stderr && stderr.includes('npm ERR')) {
       npmSpinner.warn(`npm warning:\n${stderr}`);
     } else {
-      npmSpinner.succeed('npm package updated to latest version');
+      npmSpinner.succeed(`specreview updated to v${CURRENT_VERSION}`);
     }
   } catch (err) {
-    // Differentiate error types for accurate feedback
     if (err.code === 'ENOENT') {
       npmSpinner.fail('npm not found — is Node.js/npm installed?');
     } else if (err.killed) {

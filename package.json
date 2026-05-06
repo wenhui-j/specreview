@@ -1,6 +1,6 @@
 {
   "name": "specreview",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Multi-role code review skill for AI coding assistants — /specreview <spec-name>",
   "keywords": [
     "specreview",
