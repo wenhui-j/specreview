@@ -7,7 +7,11 @@
     "code-review",
     "claude-code",
     "ai",
-    "skill"
+    "skill",
+    "openspec",
+    "code-quality",
+    "automated-review",
+    "linting"
   ],
   "license": "MIT",
   "type": "module",
