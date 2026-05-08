@@ -112,7 +112,7 @@ async function interactiveSelect(toolSvc: ToolService, detected: string[]): Prom
   const selected = await checkbox<string>({
     message: 'Select AI tools to set up:',
     choices,
-    pageSize: 12,
+    pageSize: 20,
     validate: (val) => val.length > 0 || 'Select at least one tool',
     loop: false,
   });

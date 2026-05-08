@@ -1,6 +1,6 @@
 # specreview
 
-多角色代码审查技能 —— 为 AI 编程助手（Claude Code、Cursor 等）添加 `/specreview` 命令，对使用OpenSpec框架下的指定 spec 涉及的代码变更进行多维度审查。
+多角色代码审查技能 —— 为 AI 编程助手添加 `/specreview` 命令，对使用 OpenSpec 框架下的指定 spec 涉及的代码变更进行多维度审查。支持 29+ 主流 AI 编程工具。
 
 ## 安装
 
@@ -19,10 +19,10 @@ cd your-project
 specreview init
 ```
 
-也可以指定 AI 工具（跳过交互选择）：
+也可以指定 AI 工具（跳过交互选择，支持逗号分隔的多个工具 ID）：
 
 ```bash
-specreview init --tools claude,cursor
+specreview init --tools claude,cursor,gemini,windsurf
 ```
 
 如需覆盖已有配置：
@@ -31,12 +31,46 @@ specreview init --tools claude,cursor
 specreview init --force
 ```
 
+支持的所有 AI 工具：
+
+| 工具                 | ID               | 目录         |
+| -------------------- | ---------------- | ------------ |
+| Amazon Q Developer   | `amazon-q`       | `.amazonq`   |
+| Antigravity          | `antigravity`    | `.agent`     |
+| Auggie (Augment CLI) | `auggie`         | `.augment`   |
+| Bob Shell            | `bob`            | `.bob`       |
+| Claude Code          | `claude`         | `.claude`    |
+| Cline                | `cline`          | `.cline`     |
+| CodeBuddy Code (CLI) | `codebuddy`      | `.codebuddy` |
+| Codex CLI            | `codex`          | `.codex`     |
+| Continue             | `continue`       | `.continue`  |
+| CoStrict             | `costrict`       | `.cospec`    |
+| Crush                | `crush`          | `.crush`     |
+| Cursor               | `cursor`         | `.cursor`    |
+| Factory Droid        | `factory`        | `.factory`   |
+| ForgeCode            | `forgecode`      | `.forge`     |
+| Gemini CLI           | `gemini`         | `.gemini`    |
+| GitHub Copilot       | `github-copilot` | `.github`    |
+| iFlow                | `iflow`          | `.iflow`     |
+| Junie                | `junie`          | `.junie`     |
+| Kilo Code            | `kilocode`       | `.kilocode`  |
+| Kimi CLI             | `kimi`           | `.kimi`      |
+| Kiro                 | `kiro`           | `.kiro`      |
+| Lingma               | `lingma`         | `.lingma`    |
+| OpenCode             | `opencode`       | `.opencode`  |
+| Pi                   | `pi`             | `.pi`        |
+| Qoder                | `qoder`          | `.qoder`     |
+| Qwen Code            | `qwen`           | `.qwen`      |
+| RooCode              | `roocode`        | `.roo`       |
+| Trae                 | `trae`           | `.trae`      |
+| Windsurf             | `windsurf`       | `.windsurf`  |
+
 init 会在项目中生成：
 
 ```
-.claude/skills/specreview/SKILL.md   # AI 助手自动注册 /specreview 命令
-specreview/config.yaml               # 主配置（角色、优先级等）
-specreview/config/                    # 角色检查文件 (.md)
+.<tool-dir>/skills/specreview/SKILL.md   # AI 助手自动注册 /specreview 命令
+specreview/config.yaml                   # 主配置（角色、优先级等）
+specreview/config/                       # 角色检查文件 (.md)
 ```
 
 ### `specreview update` — 更新项目
